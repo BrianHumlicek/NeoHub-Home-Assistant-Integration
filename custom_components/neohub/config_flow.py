@@ -39,7 +39,7 @@ class NeoHubConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             if await self._test_connection(user_input):
                 return self.async_create_entry(
-                    title=f"DSC Neo ({user_input[CONF_HOST]})",
+                    title=f"NeoHub server ({user_input[CONF_HOST]})",
                     data=user_input,
                 )
             errors["base"] = "cannot_connect"
