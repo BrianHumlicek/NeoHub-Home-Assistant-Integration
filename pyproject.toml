@@ -27,9 +27,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/BrianHumlicek/DSC-Neo-Integration"
-Repository = "https://github.com/BrianHumlicek/DSC-Neo-Integration"
-"Bug Tracker" = "https://github.com/BrianHumlicek/DSC-Neo-Integration/issues"
+Homepage = "https://github.com/BrianHumlicek/NeoHub-Home-Assistant-Integration"
+Repository = "https://github.com/BrianHumlicek/NeoHub-Home-Assistant-Integration"
+"Bug Tracker" = "https://github.com/BrianHumlicek/NeoHub-Home-Assistant-Integration/issues"
 
 [tool.setuptools.packages.find]
 include = ["pyneohub*"]

@@ -29,12 +29,9 @@
     <Content Include="DEVELOPMENT.md" />
     <Content Include="hacs.json" />
     <Content Include="LICENSE" />
-    <Content Include="NAMING_CONVENTION.md" />
     <Content Include="pyproject.toml" />
     <Content Include="README.md" />
     <Content Include="README_LIBRARY.md" />
-    <Content Include="REBRANDING_COMPLETE.md" />
-    <Content Include="REBRANDING_SUMMARY.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="custom_components\" />

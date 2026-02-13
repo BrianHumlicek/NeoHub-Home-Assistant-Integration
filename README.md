@@ -2,7 +2,7 @@
 
 A Home Assistant integration for [NeoHub](https://github.com/BrianHumlicek/NeoHub) - connects DSC Neo alarm panels to Home Assistant via WebSocket.
 
-This integration uses the [`pyneohub`](https://github.com/BrianHumlicek/DSC-Neo-Integration) Python library for all communication with the alarm panel.
+This integration uses the [`pyneohub`](https://github.com/BrianHumlicek/NeoHub-Home-Assistant-Integration) Python library for all communication with the alarm panel.
 
 ## Architecture
 

@@ -3,7 +3,7 @@
   "name": "DSC Neo",
   "codeowners": [],
   "config_flow": true,
-  "documentation": "https://github.com/BrianHumlicek/DSC-Neo-Integration",
+  "documentation": "https://github.com/BrianHumlicek/NeoHub-Home-Assistant-Integration",
   "integration_type": "hub",
   "iot_class": "local_push",
   "requirements": ["pyneohub==0.1.0"],
