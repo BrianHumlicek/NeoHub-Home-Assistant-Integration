@@ -1,3 +1,5 @@
+# This repository is currently under development, and is NOT fully functional yet.
+#
 # NeoHub Integration for Home Assistant
 
 A Home Assistant integration for [NeoHub](https://github.com/BrianHumlicek/NeoHub) - connects DSC Neo alarm panels to Home Assistant via WebSocket.
