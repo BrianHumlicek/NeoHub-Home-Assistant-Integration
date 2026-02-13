@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyneohub"
+version = "0.1.0"
+description = "Python library for NeoHub - WebSocket bridge for DSC Neo alarm panels"
+readme = "README_LIBRARY.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Brian Humlicek"}
+]
+keywords = ["neohub", "dsc", "neo", "alarm", "security", "home-assistant"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Home Automation",
+]
+dependencies = [
+    "aiohttp>=3.8.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/BrianHumlicek/DSC-Neo-Integration"
+Repository = "https://github.com/BrianHumlicek/DSC-Neo-Integration"
+"Bug Tracker" = "https://github.com/BrianHumlicek/DSC-Neo-Integration/issues"
+
+[tool.setuptools.packages.find]
+include = ["pyneohub*"]

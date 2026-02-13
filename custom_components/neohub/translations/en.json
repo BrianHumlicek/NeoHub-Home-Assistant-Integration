@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to NeoHub",
+        "description": "Configure your NeoHub connection to integrate DSC Neo alarm panels.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "ssl": "Use SSL",
+          "access_token": "Access Token"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to NeoHub. Check the host and port."
+    },
+    "abort": {
+      "already_configured": "This NeoHub is already configured."
+    }
+  }
+}
