@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from pyneohub import NeoHubClient, NeoHubConnectionError
+from .pyneohub import NeoHubClient, NeoHubConnectionError
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult

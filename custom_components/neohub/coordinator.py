@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from pyneohub import NeoHubClient, NeoHubConnectionError
+from .pyneohub import NeoHubClient, NeoHubConnectionError
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_send

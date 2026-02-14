@@ -29,6 +29,7 @@
     <Content Include="DEVELOPMENT.md" />
     <Content Include="hacs.json" />
     <Content Include="LICENSE" />
+    <Content Include="PRODUCTION.md" />
     <Content Include="pyproject.toml" />
     <Content Include="README.md" />
     <Content Include="README_LIBRARY.md" />
@@ -37,7 +38,7 @@
     <Folder Include="custom_components\" />
     <Folder Include="custom_components\neohub\" />
     <Folder Include="custom_components\neohub\translations\" />
-    <Folder Include="pyneohub\" />
+    <Folder Include="custom_components\neohub\pyneohub\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="custom_components\neohub\alarm_control_panel.py" />
@@ -47,7 +48,7 @@
     <Compile Include="custom_components\neohub\coordinator.py" />
     <Compile Include="custom_components\neohub\__init__.py" />
     <Compile Include="pyneohub\client.py" />
-    <Compile Include="pyneohub\__init__.py" />
+    <Compile Include="custom_components\neohub\pyneohub\__init__.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
