@@ -25,10 +25,10 @@ _LOGGER = logging.getLogger(__name__)
 STATUS_MAP: dict[str, AlarmControlPanelState] = {
     "disarmed": AlarmControlPanelState.DISARMED,
     "armed_away": AlarmControlPanelState.ARMED_AWAY,
-    "armed_stay": AlarmControlPanelState.ARMED_HOME,
+    "armed_home": AlarmControlPanelState.ARMED_HOME,
     "armed_night": AlarmControlPanelState.ARMED_NIGHT,
-    "exit_delay": AlarmControlPanelState.ARMING,
-    "entry_delay": AlarmControlPanelState.PENDING,
+    "arming": AlarmControlPanelState.ARMING,
+    "pending": AlarmControlPanelState.PENDING,
     "triggered": AlarmControlPanelState.TRIGGERED,
 }
 
