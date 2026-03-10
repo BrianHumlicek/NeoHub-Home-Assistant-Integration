@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+from collections.abc import Callable
 from typing import Any
-
-from .pyneohub import NeoHubClient, NeoHubConnectionError
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .const import SIGNAL_CONNECTION_STATE, SIGNAL_STATE_UPDATED
+from .pyneohub import NeoHubClient, NeoHubConnectionError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,7 +36,8 @@ class NeoHubCoordinator:
             access_token=access_token,
         )
 
-        self._unregister_callbacks: list = []
+        self._unregister_callbacks: list[Callable[[], None]] = []
+        self._state_event = asyncio.Event()
 
     @property
     def client(self) -> NeoHubClient:
@@ -52,17 +54,33 @@ class NeoHubCoordinator:
         """Return the current state."""
         return self._client.state
 
-    async def async_setup(self) -> bool:
-        """Set up the coordinator."""
-        self._register_callbacks()
+    def async_setup(self) -> None:
+        """Register callbacks with the client (idempotent)."""
+        if not self._unregister_callbacks:
+            self._register_callbacks()
 
+    async def async_connect(self) -> bool:
+        """Connect to NeoHub. Returns True on success."""
         try:
             await self._client.connect()
         except NeoHubConnectionError as err:
-            _LOGGER.error("Failed to connect: %s", err)
+            _LOGGER.warning(
+                "Failed to connect to NeoHub (%s:%s): %s",
+                self._client.host,
+                self._client.port,
+                err,
+            )
             return False
-
         return True
+
+    async def async_wait_for_state_update(self, timeout: float) -> bool:
+        """Wait for next full_state message. Returns True if received."""
+        self._state_event.clear()
+        try:
+            await asyncio.wait_for(self._state_event.wait(), timeout)
+            return True
+        except asyncio.TimeoutError:
+            return False
 
     async def async_shutdown(self) -> None:
         """Shut down the coordinator."""
@@ -127,6 +145,8 @@ class NeoHubCoordinator:
                     f"{SIGNAL_STATE_UPDATED}_zone_{session_id}_{zn}",
                     zone,
                 )
+
+        self._state_event.set()
 
     def _handle_partition_update(self, data: dict[str, Any]) -> None:
         """Handle partition_update message from client."""

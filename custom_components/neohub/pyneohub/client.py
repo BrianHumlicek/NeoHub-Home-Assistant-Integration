@@ -146,22 +146,38 @@ class NeoHubClient:
         self._on_error.append(callback)
         return lambda: self._on_error.remove(callback)
 
-    async def connect(self) -> bool:
+    async def connect(self, _from_reconnect: bool = False) -> bool:
         """Connect to the WebSocket server and request initial state."""
         self._shutdown = False
+
+        # Cancel any stale reconnect task before starting a fresh connection,
+        # but only when called externally (not from within _reconnect itself).
+        if not _from_reconnect:
+            if self._reconnect_task is not None and not self._reconnect_task.done():
+                self._reconnect_task.cancel()
+                self._reconnect_task = None
+
+        # Clean up any leftover session from a previous attempt.
+        if self._session is not None and not self._session.closed:
+            await self._session.close()
+            self._session = None
+
         try:
             self._session = aiohttp.ClientSession()
             headers: dict[str, str] = {}
             if self.access_token:
                 headers["Authorization"] = f"Bearer {self.access_token}"
 
-            self._ws = await self._session.ws_connect(
-                self.ws_url,
-                headers=headers,
-                heartbeat=30,
+            self._ws = await asyncio.wait_for(
+                self._session.ws_connect(
+                    self.ws_url,
+                    headers=headers,
+                    heartbeat=30,
+                ),
+                timeout=10,
             )
             self._connected = True
-            
+
             for callback in self._on_connect:
                 callback()
 
@@ -253,15 +269,22 @@ class NeoHubClient:
     async def _reconnect(self) -> None:
         """Reconnect with exponential backoff."""
         interval = RECONNECT_INTERVAL
-        while not self._shutdown:
-            _LOGGER.debug("Reconnecting in %s seconds", interval)
-            await asyncio.sleep(interval)
-            try:
-                if await self.connect():
+        try:
+            while not self._shutdown:
+                _LOGGER.warning(
+                    "NeoHub disconnected. Reconnecting in %s seconds...", interval
+                )
+                await asyncio.sleep(interval)
+                if self._shutdown:
                     return
-            except NeoHubConnectionError:
-                pass
-            interval = min(interval * 2, MAX_RECONNECT_INTERVAL)
+                try:
+                    if await self.connect(_from_reconnect=True):
+                        return
+                except NeoHubConnectionError:
+                    pass
+                interval = min(interval * 2, MAX_RECONNECT_INTERVAL)
+        except asyncio.CancelledError:
+            _LOGGER.debug("Reconnect task cancelled")
 
     def _handle_message(self, data: dict[str, Any]) -> None:
         """Handle an incoming WebSocket message."""
@@ -349,6 +372,8 @@ class NeoHubClient:
                 if zone["zone_number"] == zone_number:
                     if "open" in data:
                         zone["open"] = data["open"]
+                    if "bypassed" in data:
+                        zone["bypassed"] = data["bypassed"]
                     if "partitions" in data:
                         zone["partitions"] = data["partitions"]
                     break

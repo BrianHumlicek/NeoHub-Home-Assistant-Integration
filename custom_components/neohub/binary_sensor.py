@@ -55,6 +55,7 @@ async def async_setup_entry(
                     ),
                     device_class_str=zone.get("device_class", ""),
                     initial_open=zone.get("open", False),
+                    initial_bypassed=zone.get("bypassed", False),
                     partition_list=zone.get("partitions", []),
                 )
             )
@@ -76,12 +77,14 @@ class DscZoneSensor(BinarySensorEntity):
         zone_name: str,
         device_class_str: str,
         initial_open: bool,
+        initial_bypassed: bool,
         partition_list: list[int],
     ) -> None:
         """Initialize the binary sensor entity."""
         self._coordinator = coordinator
         self._session_id = session_id
         self._zone_number = zone_number
+        self._bypassed = initial_bypassed
         self._partition_list = partition_list
         self._attr_unique_id = f"{session_id}_zone_{zone_number}"
         self._attr_name = zone_name
@@ -98,6 +101,7 @@ class DscZoneSensor(BinarySensorEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return extra state attributes."""
         return {
+            "bypassed": self._bypassed,
             "partitions": self._partition_list,
         }
 
@@ -128,6 +132,8 @@ class DscZoneSensor(BinarySensorEntity):
         """Handle a zone state update."""
         if "open" in data:
             self._attr_is_on = data["open"]
+        if "bypassed" in data:
+            self._bypassed = data["bypassed"]
         if "partitions" in data:
             self._partition_list = data["partitions"]
         self.async_write_ha_state()
