@@ -5,5 +5,6 @@
   "config_flow": true,
   "documentation": "https://github.com/BrianHumlicek/NeoHub-Home-Assistant-Integration",
   "integration_type": "hub",
-  "iot_class": "local_push"
+  "iot_class": "local_push",
+  "version": "1.0.1"
 }
