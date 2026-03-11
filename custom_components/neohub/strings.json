@@ -10,6 +10,10 @@
           "ssl": "Use SSL",
           "access_token": "Access Token"
         }
+      },
+      "hassio_confirm": {
+        "title": "NeoHub Discovered",
+        "description": "The NeoHub add-on was discovered at {host}:{port}. Do you want to set it up?"
       }
     },
     "error": {
