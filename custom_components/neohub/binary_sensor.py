@@ -42,13 +42,11 @@ async def async_setup_entry(
 
     entities: list[DscZoneSensor] = []
     for session_id, session in coordinator.state.items():
-        session_name = session.get("name", f"DSC Neo {session_id}")
         for zone in session.get("zones", []):
             entities.append(
                 DscZoneSensor(
                     coordinator=coordinator,
                     session_id=session_id,
-                    session_name=session_name,
                     zone_number=zone["zone_number"],
                     zone_name=zone.get(
                         "name", f"Zone {zone['zone_number']}"
@@ -72,7 +70,6 @@ class DscZoneSensor(BinarySensorEntity):
         self,
         coordinator: NeoHubCoordinator,
         session_id: str,
-        session_name: str,
         zone_number: int,
         zone_name: str,
         device_class_str: str,
@@ -87,14 +84,15 @@ class DscZoneSensor(BinarySensorEntity):
         self._bypassed = initial_bypassed
         self._partition_list = partition_list
         self._attr_unique_id = f"{session_id}_zone_{zone_number}"
-        self._attr_name = zone_name
+        self._attr_name = None
         self._attr_is_on = initial_open
         self._attr_device_class = DEVICE_CLASS_MAP.get(device_class_str)
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, session_id)},
-            name=session_name,
+            identifiers={(DOMAIN, self._attr_unique_id)},
+            name=zone_name,
             manufacturer="DSC",
-            model="Neo",
+            model="Neo Zone",
+            via_device=(DOMAIN, session_id),
         )
 
     @property

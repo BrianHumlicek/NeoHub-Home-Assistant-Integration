@@ -51,7 +51,9 @@ Copy the `custom_components/neohub` directory into your Home Assistant `config/c
 | Partition | Alarm Control Panel   | `{session_id}_partition_{partition_number}`              |
 | Zone      | Binary Sensor         | `{session_id}_zone_{zone_number}`                       |
 
-Zones are session-level entities that can be associated with one or more partitions. Each zone appears as a single binary sensor with its partition associations listed in the entity attributes.
+Each partition and each zone is its own device, so it can be assigned to its own Area (e.g. each window/door zone in its own room) rather than sharing one Area for the whole panel.
+
+Zones can be associated with one or more partitions. Each zone appears as a single binary sensor with its partition associations listed in the entity attributes.
 
 ## Alarm Panel States
 

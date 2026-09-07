@@ -43,13 +43,11 @@ async def async_setup_entry(
 
     entities: list[DscAlarmPanel] = []
     for session_id, session in coordinator.state.items():
-        session_name = session.get("name", f"DSC Neo {session_id}")
         for partition in session.get("partitions", []):
             entities.append(
                 DscAlarmPanel(
                     coordinator=coordinator,
                     session_id=session_id,
-                    session_name=session_name,
                     partition_number=partition["partition_number"],
                     partition_name=partition.get(
                         "name",
@@ -78,7 +76,6 @@ class DscAlarmPanel(AlarmControlPanelEntity):
         self,
         coordinator: NeoHubCoordinator,
         session_id: str,
-        session_name: str,
         partition_number: int,
         partition_name: str,
         initial_status: str,
@@ -89,12 +86,13 @@ class DscAlarmPanel(AlarmControlPanelEntity):
         self._partition_number = partition_number
         self._status = initial_status
         self._attr_unique_id = f"{session_id}_partition_{partition_number}"
-        self._attr_name = partition_name
+        self._attr_name = None
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, session_id)},
-            name=session_name,
+            identifiers={(DOMAIN, self._attr_unique_id)},
+            name=partition_name,
             manufacturer="DSC",
-            model="Neo",
+            model="Neo Partition",
+            via_device=(DOMAIN, session_id),
         )
 
     @property

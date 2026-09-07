@@ -10,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import device_registry as dr
 
 from .const import CONF_ACCESS_TOKEN, CONF_SSL, DEFAULT_SSL, DOMAIN
 from .coordinator import NeoHubCoordinator
@@ -91,6 +92,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    device_registry = dr.async_get(hass)
+    for session_id, session in state.items():
+        device_registry.async_get_or_create(
+            config_entry_id=entry.entry_id,
+            identifiers={(DOMAIN, session_id)},
+            name=session.get("name", f"DSC Neo {session_id}"),
+            manufacturer="DSC",
+            model="NeoHub",
+        )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
