@@ -13,6 +13,7 @@ from homeassistant.components.alarm_control_panel import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -41,6 +42,14 @@ async def async_setup_entry(
     """Set up DSC Neo alarm control panel entities."""
     coordinator: NeoHubCoordinator = hass.data[DOMAIN][entry.entry_id]
 
+    device_registry = dr.async_get(hass)
+    hub_device_ids: dict[str, str | None] = {}
+    for session_id in coordinator.state:
+        hub_device = device_registry.async_get_device(
+            identifiers={(DOMAIN, session_id)}
+        )
+        hub_device_ids[session_id] = hub_device.id if hub_device else None
+
     entities: list[DscAlarmPanel] = []
     for session_id, session in coordinator.state.items():
         for partition in session.get("partitions", []):
@@ -48,6 +57,7 @@ async def async_setup_entry(
                 DscAlarmPanel(
                     coordinator=coordinator,
                     session_id=session_id,
+                    hub_device_id=hub_device_ids[session_id],
                     partition_number=partition["partition_number"],
                     partition_name=partition.get(
                         "name",
@@ -76,6 +86,7 @@ class DscAlarmPanel(AlarmControlPanelEntity):
         self,
         coordinator: NeoHubCoordinator,
         session_id: str,
+        hub_device_id: str | None,
         partition_number: int,
         partition_name: str,
         initial_status: str,
@@ -87,13 +98,15 @@ class DscAlarmPanel(AlarmControlPanelEntity):
         self._status = initial_status
         self._attr_unique_id = f"{session_id}_partition_{partition_number}"
         self._attr_name = None
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, self._attr_unique_id)},
-            name=partition_name,
-            manufacturer="DSC",
-            model="Neo Partition",
-            via_device=(DOMAIN, session_id),
-        )
+        device_info: DeviceInfo = {
+            "identifiers": {(DOMAIN, self._attr_unique_id)},
+            "name": partition_name,
+            "manufacturer": "DSC",
+            "model": "Neo Partition",
+        }
+        if hub_device_id is not None:
+            device_info["via_device_id"] = hub_device_id
+        self._attr_device_info = device_info
 
     @property
     def alarm_state(self) -> AlarmControlPanelState | None:

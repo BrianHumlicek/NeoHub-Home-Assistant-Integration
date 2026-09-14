@@ -11,6 +11,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -40,6 +41,14 @@ async def async_setup_entry(
     """Set up DSC Neo binary sensor entities."""
     coordinator: NeoHubCoordinator = hass.data[DOMAIN][entry.entry_id]
 
+    device_registry = dr.async_get(hass)
+    hub_device_ids: dict[str, str | None] = {}
+    for session_id in coordinator.state:
+        hub_device = device_registry.async_get_device(
+            identifiers={(DOMAIN, session_id)}
+        )
+        hub_device_ids[session_id] = hub_device.id if hub_device else None
+
     entities: list[DscZoneSensor] = []
     for session_id, session in coordinator.state.items():
         for zone in session.get("zones", []):
@@ -47,6 +56,7 @@ async def async_setup_entry(
                 DscZoneSensor(
                     coordinator=coordinator,
                     session_id=session_id,
+                    hub_device_id=hub_device_ids[session_id],
                     zone_number=zone["zone_number"],
                     zone_name=zone.get(
                         "name", f"Zone {zone['zone_number']}"
@@ -70,6 +80,7 @@ class DscZoneSensor(BinarySensorEntity):
         self,
         coordinator: NeoHubCoordinator,
         session_id: str,
+        hub_device_id: str | None,
         zone_number: int,
         zone_name: str,
         device_class_str: str,
@@ -87,13 +98,15 @@ class DscZoneSensor(BinarySensorEntity):
         self._attr_name = None
         self._attr_is_on = initial_open
         self._attr_device_class = DEVICE_CLASS_MAP.get(device_class_str)
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, self._attr_unique_id)},
-            name=zone_name,
-            manufacturer="DSC",
-            model="Neo Zone",
-            via_device=(DOMAIN, session_id),
-        )
+        device_info: DeviceInfo = {
+            "identifiers": {(DOMAIN, self._attr_unique_id)},
+            "name": zone_name,
+            "manufacturer": "DSC",
+            "model": "Neo Zone",
+        }
+        if hub_device_id is not None:
+            device_info["via_device_id"] = hub_device_id
+        self._attr_device_info = device_info
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
