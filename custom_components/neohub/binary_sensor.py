@@ -44,8 +44,8 @@ async def async_setup_entry(
     device_registry = dr.async_get(hass)
     hub_device_ids: dict[str, str | None] = {}
     for session_id in coordinator.state:
-        hub_device = device_registry.async_get_device(
-            identifiers={(DOMAIN, session_id)}
+        hub_device = device_registry.async_get_device_by_identifier(
+            (DOMAIN, session_id), entry.entry_id
         )
         hub_device_ids[session_id] = hub_device.id if hub_device else None
 
